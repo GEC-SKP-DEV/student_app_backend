@@ -13,11 +13,9 @@ export function onAuthStateChanged(callback: (authUser: User | null) => void) {
   });
 }
 
-// Function for Google sign-in and role check
-export async function signInWithGoogle(): Promise<{ user:User; isAdmin: boolean }> {
+export async function signInWithGoogle(): Promise<{ user: User; isAdmin: boolean }> {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ display: "popup" }); // Force popup
-
 
   try {
     const result: UserCredential = await signInWithPopup(auth, provider);
@@ -27,29 +25,23 @@ export async function signInWithGoogle(): Promise<{ user:User; isAdmin: boolean 
       throw new Error('Google sign-in failed');
     }
 
-    // Restrict login to only emails from "gecskp.ac.in"
-    // Restrict login to only emails from "gecskp.ac.in", except for a specific admin email
-const allowedEmailPattern = /^[a-zA-Z0-9]+@gecskp\.ac\.in$/;
-const adminOverrideEmail = "shadilrayyan2@gmail.com";
-
-if (user.email !== adminOverrideEmail && !allowedEmailPattern.test(user.email)) {
-  throw new Error('Only GEC SKP emails are allowed');
-}
-
-    
-
+    // Remove email restriction: any email can try login now
+    // Only admins are checked via Firestore
     const userDocRef = doc(firestore, 'adminemail', user.email);
     const userDoc = await getDoc(userDocRef);
 
-    const isAdmin = userDoc.exists() && userDoc.data()?.role === 'admin';
+    const isAdmin = userDoc.exists() && (userDoc.data()?.role === 'admin' || userDoc.data()?.role === 'superadmin');
 
-    return {user, isAdmin };
+    if (!isAdmin) {
+      throw new Error('You are not authorized as admin');
+    }
+
+    return { user, isAdmin };
   } catch (error) {
     console.error('Error signing in with Google:', error);
     throw error;
   }
 }
-
 
 
 export async function signOutWithGoogle(): Promise<void> {
