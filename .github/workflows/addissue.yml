@@ -3,12 +3,25 @@ name: Add Issue to Central Project
 on:
   issues:
     types: [opened]
+  workflow_dispatch:  # Enables manual trigger
 
 jobs:
   add_to_project:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/add-to-project@v2  # Latest version as of 2025
-        with:
-          project-url: https://github.com/orgs/YOURORG/projects/6  # Replace with your URL
-          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh -y
+
+      - name: Authenticate
+        env:
+          GH_TOKEN: ${{ secrets.CENTRAL_PROJECT_PAT }}
+        run: |
+          echo "${GH_TOKEN}" | gh auth login --with-token
+
+      - name: Add issue to Project
+        env:
+          PROJECT_NUMBER: 6  # from your URL
+        run: |
+          gh project item add --project $PROJECT_NUMBER --content-url "${{ github.event.issue.html_url }}"
