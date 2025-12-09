@@ -8,21 +8,11 @@ jobs:
   add_to_project:
     runs-on: ubuntu-latest
     steps:
-      - name: Install GitHub CLI
-        run: |
-          sudo apt update
-          sudo apt install gh -y
-
-      - name: Authenticate
-        env:
-          GH_TOKEN: ${{ secrets.CENTRAL_PROJECT_PAT }}
-        run: |
-          echo "${GH_TOKEN}" | gh auth login --with-token
-
-      - name: Add issue to Project
-        env:
-          PROJECT_NUMBER: 6  # from your URL
-        run: |
-          gh project item add --project $PROJECT_NUMBER --content-url "${{ github.event.issue.html_url }}"
-
-##
+      - name: Add To GitHub Projects
+        uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: https://github.com/orgs/GEC-SKP-DEV/projects/6
+          github-token: ${{ secrets.CENTRAL_PROJECT_PAT }}
+          # optional: only add issues labeled "bug"
+          labeled: bug
+          label-operator: OR
