@@ -4,7 +4,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash, Calendar, MapPin, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 interface Event {
   id: string;
@@ -40,10 +39,10 @@ export default function AdminEventsPage() {
 
   async function deleteEvent(id: string) {
     if (!confirm("Are you sure you want to delete this event?")) return;
-    
+
     try {
       await fetch(`/api/events/${id}`, { method: "DELETE" });
-      setEvents(events.filter(e => e.id !== id));
+      setEvents(events.filter((e) => e.id !== id));
     } catch (error) {
       console.error("Error deleting event:", error);
       alert("Failed to delete event. Please try again.");
@@ -84,62 +83,59 @@ export default function AdminEventsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          
-              <div className="p-5">
-                <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">{event.title}</h3>
-                
-                <div className="flex items-center text-gray-600 text-sm mb-3">
-                  <MapPin className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                  <span className="truncate">{event.venue}</span>
-                </div>
-                
-                <div className="flex items-center text-gray-600 text-sm mb-4">
-                  <Calendar className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                  <span>
-                    {new Date(event.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                    {event.time && (
-                      <>
-                        <span className="mx-1">•</span>
-                        <Clock className="w-4 h-4 inline-block mr-1" />
-                        {event.time}
-                      </>
-                    )}
-                  </span>
-                </div>
+          {events.map((event) => (
+            <div key={event.id} className="p-5 bg-white rounded-lg shadow">
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">{event.title}</h3>
 
-                {event.description && (
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {event.description}
-                  </p>
-                )}
+              <div className="flex items-center text-gray-600 text-sm mb-3">
+                <MapPin className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                <span className="truncate">{event.venue}</span>
+              </div>
 
-                <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+              <div className="flex items-center text-gray-600 text-sm mb-4">
+                <Calendar className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                <span>
+                  {new Date(event.date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                  {event.time && (
+                    <>
+                      <span className="mx-1">•</span>
+                      <Clock className="w-4 h-4 inline-block mr-1" />
+                      {event.time}
+                    </>
+                  )}
+                </span>
+              </div>
+
+              {event.description && (
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{event.description}</p>
+              )}
+
+              <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                <button
+                  onClick={() => router.push(`/events/${event.id}`)}
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  View Details
+                </button>
+                <div className="flex space-x-2">
                   <button
-                    onClick={() => router.push(`/events/${event.id}`)}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    onClick={() => router.push(`/events/${event.id}/edit`)}
+                    className="p-1.5 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50"
+                    title="Edit"
                   >
-                    View Details
+                    <Pencil className="w-4 h-4" />
                   </button>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => router.push(`/events/${event.id}/edit`)}
-                      className="p-1.5 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50"
-                      title="Edit"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteEvent(event.id)}
-                      className="p-1.5 text-gray-500 hover:text-red-600 rounded-full hover:bg-red-50"
-                      title="Delete"
-                    >
-                      <Trash className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => deleteEvent(event.id)}
+                    className="p-1.5 text-gray-500 hover:text-red-600 rounded-full hover:bg-red-50"
+                    title="Delete"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
